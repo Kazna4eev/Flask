@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            margin: 20px auto;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin: 10px 0;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+
+        button[type="submit"] {
+            padding: 5px;
+            border-radius: 3px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        .error {
+            color: red;
+            margin: 5px 0;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Product List</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="product-list">
+        </tbody>
+    </table>
+
+    <form id="add-product-form">
+        <h2>Add New Product</h2>
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
+
+        <label for="description">Description:</label>
+        <input type="text" name="description" required>
+
+        <label for="price">Price:</label>
+        <input type="number" name="price" required>
+
+        <button type="submit">Add Product</button>
+    </form>
+
+    <script>
+        $(function() {
+
+            $.get('/products', function(data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    var product = data[i];
+                    var row = $('<tr>');
+                    row.append($('<td>').text(product.name));
+                    row.append($('<td>').text(product.description));
+                    row.append($('<td>').text(product.price));
+                    $('#product-list').append(row);
+            }
+        });
+
+
+        $('#add-product-form').submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+            var name = form.find('input[name="name"]').val();
+            var description = form.find('input[name="description"]').val();
+            var price = form.find('input[name="price"]').val();
+
+
+            if (name && description && price) {
+
+                $.post('/products', {name: name, description: description, price: price}, function(data) {
+
+                    var row = $('<tr>');
+                    row.append($('<td>').text(data.name));
+                    row.append($('<td>').text(data.description));
+                    row.append($('<td>').text(data.price));
+                    $('#product-list').append(row);
+
+
+                    form.find('input[name="name"]').val('');
+                    form.find('input[name="description"]').val('');
+                    form.find('input[name="price"]').val('');
+                });
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+    });
+</script>
+
